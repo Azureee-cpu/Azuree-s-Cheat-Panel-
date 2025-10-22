@@ -1,20 +1,11 @@
 -- // Services \\
 local Players = game:GetService("Players")
-local UserInputService = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
-local TeleportService = game:GetService("TeleportService")
-local HttpService = game:GetService("HttpService")
-local Lighting = game:GetService("Lighting")
-local Workspace = game:GetService("Workspace")
-
-local LocalPlayer = Players.LocalPlayer
-local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
-local Camera = Workspace.CurrentCamera
 
 -- // Players current room & checkers \\
 -- Define it at the top, outside any function
 local BrokenBone = true
 local gubby = true
+
 -- Check room and set value
 if game.PlaceId == 7797478022 then
     BrokenBone = false
@@ -22,7 +13,12 @@ else
     BrokenBone = true
 end
 
-
+-- Check room and set value
+if game.PlaceId == 111452220770252 then
+    gubby = false
+else
+    gubby = true
+end
 
 
 -- // Load UI Library \\
@@ -30,9 +26,9 @@ local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/rel
 
 -- // Window \\
 local Window = WindUI:CreateWindow({
-    Title = "Azuree's Cheat Panel",
+    Title = "» ΛZURΞΞ CHΞΛT PΛNΞL «",
     Icon = "cat", -- lucide icon
-    Author = "By Azuree",
+    Author = "BΨ ΛZURΞΞ",
     Folder = "Azuree's Cheat Panel",
 
 
@@ -62,21 +58,21 @@ local Window = WindUI:CreateWindow({
 
     
 	Window:Tag({
-    	Title = "v1.0.3",
+    	Title = "> v1.0.3 <",
     	Color = Color3.fromHex("#170047"),
     	Radius = 13, -- from 0 to 13
 	})
 
 	Window:Tag({
-    	Title = "Beta",
-    	Color = Color3.fromHex("#170047"),
+    	Title = "> B3TΛ <",
+    	Color = Color3.fromHex("#001740"),
     	Radius = 13, -- from 0 to 13
 	})
 
 	Window:OnClose(function()
     	WindUI:Notify({
-    		Title = "Incoming Notification...",
-    		Content = "Window Closed Successfully.",
+    		Title = "[SYSTΞM]",
+    		Content = "WINDØW CLØSΞD",
     		Duration = 3,
     		Icon = "code",
 		})
@@ -84,8 +80,8 @@ local Window = WindUI:CreateWindow({
 
 Window:OnOpen(function()
     	WindUI:Notify({
-    		Title = "Incoming Notification...",
-    		Content = "Window Opened Successfully.",
+    		Title = "[SYSTΞM]",
+    		Content = "WINDØW ØPΞNΞD",
     		Duration = 3,
     		Icon = "code",
 		})
@@ -93,12 +89,13 @@ Window:OnOpen(function()
 
 	Window:OnDestroy(function()
     	WindUI:Notify({
-    		Title = "Incoming Notification...",
-    		Content = "Window Destroyed Successfully.",
+    		Title = "[SYSTΞM]",
+    		Content = "WINDØW DΞSTRØYΞD",
     		Duration = 3,
     		Icon = "code",
 		})
 	end)
+
 
 -- // Themes \\
 WindUI:AddTheme({
@@ -159,6 +156,7 @@ local OtherSection = Window:Section({
 })
 
 
+
 -- // Tabs \\
 local OtherTab = OtherSection:Tab({
     Title = "Settings",
@@ -168,6 +166,11 @@ local OtherTab = OtherSection:Tab({
 
 
 -- // Settings Tab \\
+
+local OtherSection = OtherTab:Section({ 
+    Title = "// - = [ Theme Changer ] =- \\",
+})
+
 
 local selectedTheme = "Dark"
 
@@ -207,214 +210,6 @@ local Button = OtherTab:Button({
     end
 })
 
-local PlayerTab = OtherSection:Tab({
-    Title = "Player",
-    Icon = "user", -- optional
-    Locked = false,
-})
-
-local SpeedSlider = PlayerTab:Slider({
-    Title = "Player Speed",
-    Step = 1,
-    Value = {
-        Min = 1,
-        Max = 500,
-        Default = 16,
-    },
-    Callback = function(value)
-        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-            LocalPlayer.Character.Humanoid.WalkSpeed = value
-        end
-    end,
-})
-
-local JumpPowerSlider = PlayerTab:Slider({
-    Title = "Jump Power",
-    Step = 1,
-    Value = {
-        Min = 1,
-        Max = 500,
-        Default = 50,
-    },
-    Callback = function(value)
-        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-            local humanoid = LocalPlayer.Character.Humanoid
-
-            -- Ensure it uses JumpPower
-            if humanoid.UseJumpPower ~= true then
-                humanoid.UseJumpPower = true
-            end
-
-            humanoid.JumpPower = value
-        end
-    end,
-})
-
-local Button = PlayerTab:Button({
-    Title = "Reset Speed & Jump Power",
-    Desc = "No explanation needed.",
-    Locked = false,
-    Callback = function()
-        JumpPowerSlider:Set(50)
-        SpeedSlider:Set(16)
-		end,
-})
-
-
------------------------------------------------------
---// FLY
------------------------------------------------------
-local flying = false
-local flySpeed = 50
-local flyConnection
-
-local function StartFly()
-    local char = LocalPlayer.Character
-    if not char or not char:FindFirstChild("HumanoidRootPart") then return end
-    local hrp = char.HumanoidRootPart
-
-    flyConnection = RunService.RenderStepped:Connect(function()
-        if not flying then return end
-        local move = Vector3.zero
-
-        if UserInputService:IsKeyDown(Enum.KeyCode.W) then move += Camera.CFrame.LookVector end
-        if UserInputService:IsKeyDown(Enum.KeyCode.S) then move -= Camera.CFrame.LookVector end
-        if UserInputService:IsKeyDown(Enum.KeyCode.A) then move -= Camera.CFrame.RightVector end
-        if UserInputService:IsKeyDown(Enum.KeyCode.D) then move += Camera.CFrame.RightVector end
-        if UserInputService:IsKeyDown(Enum.KeyCode.Space) then move += Vector3.new(0, 1, 0) end
-        if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then move -= Vector3.new(0, 1, 0) end
-
-        hrp.Velocity = move.Magnitude > 0 and move.Unit * flySpeed or Vector3.zero
-    end)
-end
-
-local function StopFly()
-    if flyConnection then
-        flyConnection:Disconnect()
-        flyConnection = nil
-    end
-    local char = LocalPlayer.Character
-    if char and char:FindFirstChild("HumanoidRootPart") then
-        char.HumanoidRootPart.Velocity = Vector3.zero
-    end
-end
-
-PlayerTab:Toggle({
-    Title = "Flight",
-    Desc = "Fly with WASD + Space/Shift",
-    Default = false,
-    Callback = function(state)
-        flying = state
-        if state then StartFly() else StopFly() end
-    end
-})
-
-PlayerTab:Slider({
-    Title = "Flight Speed",
-    Step = 5,
-    Value = {
-        Min = 0,
-        Max = 500,
-        Default = 50,
-    },
-    Callback = function(val)
-        flySpeed = val
-    end
-})
-
------------------------------------------------------
---// NOCLIP
------------------------------------------------------
-local noclipEnabled = false
-local noclipConnection
-
-PlayerTab:Toggle({
-    Title = "NoClip",
-    Desc = "Walk through walls",
-    Default = false,
-    Callback = function(state)
-        noclipEnabled = state
-        if state then
-            noclipConnection = RunService.Stepped:Connect(function()
-                if LocalPlayer.Character then
-                    for _, part in ipairs(LocalPlayer.Character:GetDescendants()) do
-                        if part:IsA("BasePart") then
-                            part.CanCollide = false
-                        end
-                    end
-                end
-            end)
-        else
-            if noclipConnection then
-                noclipConnection:Disconnect()
-                noclipConnection = nil
-            end
-        end
-    end
-})
-
------------------------------------------------------
---// INFINITE JUMP
------------------------------------------------------
-local infJumpEnabled = false
-
-UserInputService.JumpRequest:Connect(function()
-    if infJumpEnabled and LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") then
-        LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
-    end
-end)
-
-PlayerTab:Toggle({
-    Title = "Infinite Jump",
-    Desc = "Jump endlessly",
-    Default = false,
-    Callback = function(state)
-        infJumpEnabled = state
-    end
-})
-
------------------------------------------------------
---// GODMODE (Health 100 every frame)
------------------------------------------------------
-local godEnabled = false
-local godConnection
-
-PlayerTab:Toggle({
-    Title = "Godmode",
-    Desc = "Keeps your health locked to 100",
-    Default = false,
-    Callback = function(state)
-        godEnabled = state
-        if state then
-            godConnection = RunService.Heartbeat:Connect(function()
-                local char = LocalPlayer.Character
-                if char then
-                    local hum = char:FindFirstChildOfClass("Humanoid")
-                    if hum then
-                        hum.Health = 100
-                    end
-                end
-            end)
-        else
-            if godConnection then
-                godConnection:Disconnect()
-                godConnection = nil
-            end
-        end
-    end
-})
- 
-local Button = PlayerTab:Button({
-    Title = "Kill Self",
-    Desc = "Sets your health to 0",
-    Locked = false,
-    Callback = function()
-        local character = LocalPlayer.Character
-        if character and character:FindFirstChildOfClass("Humanoid") then
-            character:FindFirstChildOfClass("Humanoid").Health = 0
-        end
-    end
-})
 
 
 
@@ -422,11 +217,14 @@ local BrokenBonesSection = Window:Section({
     Title = "Broken Bones Simulator 2",
 })
 
-
 local OPTab = BrokenBonesSection:Tab({
     Title = "OP",
     Icon = "skull",
     Locked = BrokenBone,
+})
+
+local BrokenBonesSection = OPTab:Section({ 
+    Title = "// - = [ Money & Bones ] =- \\",
 })
 
 local Button = OPTab:Button({
@@ -434,6 +232,7 @@ local Button = OPTab:Button({
     Desc = "I don't know,",
     Locked = false,
     Callback = function()
+
 
 	local args = {
     [1] = {
@@ -457,6 +256,7 @@ local Button = OPTab:Button({
     Desc = "I don't know,",
     Locked = false,
     Callback = function()
+
 	local args = {
     [1] = {
         ["Total"] = 1231414122222222222222222222222222222222222222222222222222222,
@@ -472,3 +272,19 @@ local Button = OPTab:Button({
 game:GetService("ReplicatedStorage").Remotes.Player_NewRun:FireServer(unpack(args))
     end
 })
+
+
+
+local GubbySection = Window:Section({
+    Title = "Beat Up Gubby In His Own Home",
+})
+
+
+local AutoTab = GubbySection:Tab({
+    Title = "Auto",
+    Icon = "rabbit",
+    Locked = gubby,
+})
+
+
+
