@@ -1,5 +1,9 @@
 -- // Services \\
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local Camera = workspace.CurrentCamera
+local LocalPlayer = Players.LocalPlayer
 
 -- // Players current room & checkers \\
 -- Define it at the top, outside any function
@@ -14,7 +18,7 @@ else
 end
 
 -- Check room and set value
-if game.PlaceId == 111452220770252 then
+if game.PlaceId == 7180042682 then
     gubby = false
 else
     gubby = true
@@ -55,6 +59,10 @@ local Window = WindUI:CreateWindow({
         SaveKey = true, -- automatically save and load the key.
     },
 })
+
+
+
+
 
     
 	Window:Tag({
@@ -150,41 +158,40 @@ WindUI:AddTheme({
     Icon = Color3.fromHex("#ffffff")
 })
 
--- // Sections \\
+-- =============================
+-- Create Section "Other"
+-- =============================
 local OtherSection = Window:Section({
     Title = "Other",
+    Icon = "shield-question-mark",
+    Opened = true,
 })
 
-
-
--- // Tabs \\
-local OtherTab = OtherSection:Tab({
+-- =============================
+-- Settings Tab
+-- =============================
+local SettingsTab = OtherSection:Tab({
     Title = "Settings",
-    Icon = "settings", -- optional
+    Icon = "settings",
     Locked = false,
 })
 
-
--- // Settings Tab \\
-
-local OtherSection = OtherTab:Section({ 
+local ThemeSection = SettingsTab:Section({
     Title = "// - = [ Theme Changer ] =- \\",
 })
 
-
+-- Theme Selector
 local selectedTheme = "Dark"
-
-local Dropdown = OtherTab:Dropdown({
+ThemeSection:Dropdown({
     Title = "Theme Selector",
     Values = {
         { Title = "Dark", Icon = "paintbrush" },
         { Title = "Light", Icon = "paintbrush" },
-		{ Title = "SuperDark", Icon = "paintbrush" },
-		{ Title = "Blue", Icon = "paintbrush" },
+        { Title = "SuperDark", Icon = "paintbrush" },
+        { Title = "Blue", Icon = "paintbrush" },
     },
     Value = selectedTheme,
     Callback = function(theme)
-        -- Some UI libs return the entire table instead of just the title
         if type(theme) == "table" and theme.Title then
             selectedTheme = theme.Title
         else
@@ -193,28 +200,142 @@ local Dropdown = OtherTab:Dropdown({
     end
 })
 
-local Button = OtherTab:Button({
+-- Set Theme Button
+ThemeSection:Button({
     Title = "Set Theme",
     Desc = "Sets The Theme Of The Menu",
     Locked = false,
     Callback = function()
-        if selectedTheme == "Dark" then
-            WindUI:SetTheme("Dark")
-        elseif selectedTheme == "Light" then
-            WindUI:SetTheme("Light")
-        elseif selectedTheme == "SuperDark" then
-            WindUI:SetTheme("SuperDark")
-        elseif selectedTheme == "Blue" then
-            WindUI:SetTheme("Blue")
+        if selectedTheme and selectedTheme ~= "" then
+            WindUI:SetTheme(selectedTheme)
+            WindUI:Notify({
+                Title = "[SYSTΞM]",
+                Content = "THΞMΞ CHANGΞD TO " .. selectedTheme,
+                Duration = 3,
+                Icon = "code",
+            })
         end
     end
 })
 
+-- Background Toggle
+ThemeSection:Toggle({
+    Title = "Background Image",
+    Desc = "Toggles a background image behind the menu.",
+    Icon = "image",
+    Type = "Checkbox",
+    Value = false,
+    Callback = function(backt)
+        WindUI:SetBackground({
+            Image = "rbxassetid://1904861641",
+            Transparency = backt and 0 or 1,
+            TileSize = UDim2.new(1, 0, 1, 0),
+        })
+        WindUI:Notify({
+            Title = "[SYSTΞM]",
+            Content = backt and "BΛCKGRØUND ΞNΛBLΞD." or "BΛCKGRØUND DΙSΛBLΞD.",
+            Duration = 3,
+            Icon = backt and "image" or "x",
+        })
+    end
+})
 
+-- =============================
+-- Config Tab
+-- =============================
+local ConfigTab = OtherSection:Tab({
+    Title = "Config",
+    Icon = "folder",
+})
+
+local ConfigTabSection = ConfigTab:Section({
+    Title = "Configuration",
+    Icon = "settings",
+})
+
+local ConfigManager = Window.ConfigManager
+local ConfigName = "default"
+
+-- Input for naming configs
+local ConfigNameInput = ConfigTabSection:Input({
+    Title = "Config Name",
+    Icon = "file-cog",
+    Callback = function(value)
+        ConfigName = value
+    end
+})
+
+-- Dropdown for existing configs
+local AllConfigs = ConfigManager:AllConfigs()
+local DefaultValue = (table.find(AllConfigs, ConfigName) and ConfigName) or (AllConfigs[1] or "")
+ConfigTabSection:Dropdown({
+    Title = "All Configs",
+    Desc = "Select existing configs",
+    Values = AllConfigs,
+    Value = DefaultValue,
+    Callback = function(value)
+        ConfigName = value
+        ConfigNameInput:Set(value)
+    end
+})
+
+ConfigTabSection:Space()
+
+-- Save Button
+ConfigTabSection:Button({
+    Title = "Save Config",
+    Icon = "save",
+    Justify = "Center",
+    Callback = function()
+        if ConfigName and ConfigName ~= "" then
+            local myConfig = ConfigManager:CreateConfig(ConfigName)
+            myConfig:Save()
+            WindUI:Notify({
+                Title = "Config Saved",
+                Content = "Config '" .. ConfigName .. "' has been saved!",
+                Icon = "check",
+                Duration = 3,
+            })
+        end
+    end
+})
+
+ConfigTabSection:Space()
+
+-- Load Button
+ConfigTabSection:Button({
+    Title = "Load Config",
+    Icon = "refresh-cw",
+    Justify = "Center",
+    Callback = function()
+        if ConfigName and ConfigName ~= "" then
+            local myConfig = ConfigManager:CreateConfig(ConfigName)
+            myConfig:Load()
+            WindUI:Notify({
+                Title = "Config Loaded",
+                Content = "Config '" .. ConfigName .. "' has been loaded!",
+                Icon = "refresh-cw",
+                Duration = 3,
+            })
+        end
+    end
+})
+
+-- Auto-save every 10 seconds
+task.spawn(function()
+    while true do
+        task.wait(10)
+        if ConfigName and ConfigName ~= "" then
+            local myConfig = ConfigManager:CreateConfig(ConfigName)
+            myConfig:Save()
+        end
+    end
+end)
 
 
 local BrokenBonesSection = Window:Section({
     Title = "Broken Bones Simulator 2",
+	Icon = "bone",
 })
 
 local OPTab = BrokenBonesSection:Tab({
@@ -276,15 +397,259 @@ game:GetService("ReplicatedStorage").Remotes.Player_NewRun:FireServer(unpack(arg
 
 
 local GubbySection = Window:Section({
-    Title = "Beat Up Gubby In His Own Home",
+    Title = "Military Tycoon",
+	Icon = "shield-off",
 })
 
 
 local AutoTab = GubbySection:Tab({
-    Title = "Auto",
-    Icon = "rabbit",
+    Title = "Auto Farm",
+    Icon = "bot",
     Locked = gubby,
+})
+
+local RunService = game:GetService("RunService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Event = ReplicatedStorage.Packages._Index["sleitnick_knit@1.5.1"].knit.Services.EventService.RF.ClaimBlueprint
+
+-- Variable to track whether the loop should run
+local autoPumpkinEnabled = false
+
+local Toggle = AutoTab:Toggle({
+    Title = "Enable Auto Pumpkin",
+    Desc = "Collects all of the pumpkins for you!",
+    Icon = "boxes",
+    Type = "Checkbox",
+    Value = false, -- default value
+    Callback = function(enabled)
+        autoPumpkinEnabled = enabled
+
+        if enabled then
+            WindUI:Notify({
+                Title = "[SYSTΞM]",
+                Content = "ΛLL PUMPKINS FØUND... CØLLΞCTING...",
+                Duration = 3,
+                Icon = "code",
+            })
+
+            -- Run in a separate thread so it doesn’t freeze the UI
+            task.spawn(function()
+                while autoPumpkinEnabled do
+                    for i = 1, 25 do
+                        Event:InvokeServer("October18_Part" .. i)
+                        task.wait(0.1) -- small delay between each
+                    end
+
+                    WindUI:Notify({
+                        Title = "[SYSTΞM]",
+                        Content = "ΞVΞRY PUMPKIN HΛS BΞΞN CØLLΞCTΞD. PLΞΛSΞ WΛIT 12 MINUTΞS TØ CLΛIM THΞ NΞXT BΛTCH.",
+                        Duration = 5,
+                        Icon = "code",
+                    })
+
+                    -- Wait 12 minutes before next batch
+                    for i = 1, 50 * 60 do
+                        if not autoPumpkinEnabled then break end
+                        task.wait(1)
+                    end
+                end
+            end)
+        else
+            WindUI:Notify({
+                Title = "[SYSTΞM]",
+                Content = "ΛUTØ PUMPKIN DΙSΛBLΞD.",
+                Duration = 3,
+                Icon = "code",
+            })
+        end
+    end,
 })
 
 
 
+
+
+
+local AimbotTab = GubbySection:Tab({
+    Title = "Cheats",
+    Icon = "target",
+    Locked = gubby,
+})
+
+--// Settings (defaults)
+local aimEnabled = false
+local fovCircle
+local FOV_RADIUS = 50
+local FOV_COLOR = Color3.fromRGB(140, 60, 255)
+local MAX_DISTANCE = 250
+local SMOOTHNESS = 0.15 -- camera lerp speed
+local SelectedColor = "white" -- default selection
+
+--// Create FOV circle
+local function createFOV()
+    local circle = Drawing.new("Circle")
+    circle.Visible = true
+    circle.Thickness = 2
+    circle.Radius = FOV_RADIUS
+    circle.Transparency = 1
+    circle.Color = FOV_COLOR
+    circle.Filled = false
+    return circle
+end
+
+--// Get closest player in FOV
+local function getClosestPlayerInFOV()
+    local closest, shortest = nil, math.huge
+    local screenCenter = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
+
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= LocalPlayer and plr.Character and plr.Character:FindFirstChild("Head") then
+            local head = plr.Character.Head
+            local pos, onScreen = Camera:WorldToViewportPoint(head.Position)
+            if onScreen then
+                local dist = (Vector2.new(pos.X, pos.Y) - screenCenter).Magnitude
+                local distance3D = (head.Position - Camera.CFrame.Position).Magnitude
+                if dist < FOV_RADIUS and distance3D < MAX_DISTANCE and dist < shortest then
+                    shortest = dist
+                    closest = plr
+                end
+            end
+        end
+    end
+
+    return closest
+end
+
+--// FOV Update Loop
+local function updateFOV()
+    task.spawn(function()
+        while aimEnabled do
+            if not fovCircle then break end
+
+            -- Center the FOV circle properly
+            local center = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
+            fovCircle.Position = center
+            fovCircle.Radius = FOV_RADIUS
+            fovCircle.Color = FOV_COLOR
+
+            -- Aim at closest target
+            local target = getClosestPlayerInFOV()
+            if target and target.Character and target.Character:FindFirstChild("Head") then
+                local head = target.Character.Head
+                local direction = (head.Position - Camera.CFrame.Position).Unit
+                local desired = CFrame.new(Camera.CFrame.Position, Camera.CFrame.Position + direction)
+                Camera.CFrame = Camera.CFrame:Lerp(desired, SMOOTHNESS)
+            end
+
+            RunService.RenderStepped:Wait()
+        end
+    end)
+end
+
+--// Toggle
+local Toggle = AimbotTab:Toggle({
+    Title = "Auto Aim (FOV Lock)",
+    Desc = "Smoothly rotates camera toward closest player within FOV",
+    Icon = "crosshair",
+    Type = "Checkbox",
+    Value = false,
+    Callback = function(state)
+        aimEnabled = state
+
+        if state then
+            WindUI:Notify({
+                Title = "[SYSTΞM]",
+                Content = "ΛUTØ ΛIM ΞNΛBLΞD",
+                Duration = 3,
+                Icon = "target",
+            })
+
+            fovCircle = createFOV()
+            updateFOV()
+        else
+            WindUI:Notify({
+                Title = "[SYSTΞM]",
+                Content = "ΛUTØ ΛIM DΙSΛBLΞD",
+                Duration = 3,
+                Icon = "x",
+            })
+
+            if fovCircle then
+                fovCircle.Visible = false
+                fovCircle:Remove()
+                fovCircle = nil
+            end
+        end
+    end,
+})
+
+--// FOV Radius Slider
+local FOVSlider = AimbotTab:Slider({
+    Title = "FOV Radius",
+    Desc = "Adjust the size of the aim circle",
+    Step = 10,
+    Value = {
+        Min = 1,
+        Max = 400,
+        Default = 150,
+    },
+    Callback = function(val)
+        FOV_RADIUS = val
+        if fovCircle then fovCircle.Radius = val end
+    end,
+})
+
+--// Max Distance Slider
+local DistSlider = AimbotTab:Slider({
+    Title = "Max Aim Distance",
+    Desc = "How far players can be to lock on",
+    Step = 10,
+    Value = {
+        Min = 100,
+        Max = 1000,
+        Default = 250,
+    },
+    Callback = function(val)
+        MAX_DISTANCE = val
+    end,
+})
+
+--// FOV Color Dropdown
+local FOVColorDropdown = AimbotTab:Dropdown({
+    Title = "FOV Color",
+    Desc = "Select a preset color for the FOV circle",
+    Values = { "Purple", "Red", "Green", "Blue", "White" },
+    Multi = false,
+    Callback = function(selected)
+        SelectedColor = selected
+    end,
+})
+
+--// Apply Color Button
+local ApplyColorButton = AimbotTab:Button({
+    Title = "Apply FOV Color",
+    Desc = "Applies your selected FOV circle color",
+    Locked = false,
+    Callback = function()
+        local colors = {
+            Purple = Color3.fromRGB(140, 60, 255),
+            Red = Color3.fromRGB(255, 60, 60),
+            Green = Color3.fromRGB(60, 255, 60),
+            Blue = Color3.fromRGB(60, 120, 255),
+            White = Color3.fromRGB(255, 255, 255),
+        }
+
+        FOV_COLOR = colors[SelectedColor] or Color3.fromRGB(140, 60, 255)
+
+        if fovCircle then
+            fovCircle.Color = FOV_COLOR
+        end
+
+        WindUI:Notify({
+            Title = "[SYSTΞM]",
+            Content = "FOV CØLØR ΞNΛBLΞD: " .. SelectedColor,
+            Duration = 2,
+            Icon = "palette",
+        })
+    end,
+})
