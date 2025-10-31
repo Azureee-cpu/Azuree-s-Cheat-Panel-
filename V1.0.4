@@ -2,6 +2,8 @@
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local Workspace = game:GetService("Workspace")
 local Camera = workspace.CurrentCamera
 local LocalPlayer = Players.LocalPlayer
 
@@ -61,12 +63,24 @@ local Window = WindUI:CreateWindow({
 })
 
 
-
+Window:EditOpenButton({
+    Title = "» ΛZURΞΞ CHΞΛT PΛNΞL «",
+    Icon = "code",
+    CornerRadius = UDim.new(0,16),
+    StrokeThickness = 1,
+    Color = ColorSequence.new( -- gradient
+        Color3.fromHex("170047"), 
+        Color3.fromHex("001740")
+    ),
+    OnlyMobile = false,
+    Enabled = true,
+    Draggable = true,
+})
 
 
     
 	Window:Tag({
-    	Title = "> v1.0.8 <",
+    	Title = "> v1.0.4 <",
     	Color = Color3.fromHex("#170047"),
     	Radius = 13, -- from 0 to 13
 	})
@@ -74,12 +88,6 @@ local Window = WindUI:CreateWindow({
 	Window:Tag({
     	Title = "> B3TΛ <",
     	Color = Color3.fromHex("#001740"),
-    	Radius = 13, -- from 0 to 13
-	})
-
-	Window:Tag({
-    	Title = "> EARLY ACCESS <",
-    	Color = Color3.fromHex("#4B1F8C"),
     	Radius = 13, -- from 0 to 13
 	})
 
@@ -164,40 +172,294 @@ WindUI:AddTheme({
     Icon = Color3.fromHex("#ffffff")
 })
 
--- =============================
--- Create Section "Other"
--- =============================
+-- // Sections \\
 local OtherSection = Window:Section({
     Title = "Other",
-    Icon = "shield-question-mark",
-    Opened = true,
 })
 
--- =============================
--- Settings Tab
--- =============================
-local SettingsTab = OtherSection:Tab({
-    Title = "Settings",
-    Icon = "settings",
+local PlayerTab = OtherSection:Tab({
+    Title = "Player",
+    Icon = "user", -- optional
     Locked = false,
 })
 
-local ThemeSection = SettingsTab:Section({
+local PlayerSection = PlayerTab:Section({ 
+    Title = "// - = [ Speed ] =- \\",
+})
+
+local Button = PlayerTab:Button({
+    Title = "Reset Walk Speed",
+    Desc = "",
+    Locked = false,
+    Callback = function()
+	local character = game.Players.LocalPlayer.Character
+        if character and character:FindFirstChildOfClass("Humanoid") then
+            character:FindFirstChildOfClass("Humanoid").WalkSpeed = 16
+        end
+    end
+})
+
+-- Player Speed Slider
+local SpeedSlider = PlayerTab:Slider({
+    Title = "Walk Speed",
+    Desc = "Change player walk speed",
+    Step = 1,
+    Value = {
+        Min = 0,
+        Max = 1000,
+        Default = 16,
+    },
+    Callback = function(value)
+        local character = game.Players.LocalPlayer.Character
+        if character and character:FindFirstChildOfClass("Humanoid") then
+            character:FindFirstChildOfClass("Humanoid").WalkSpeed = value
+        end
+    end
+})
+
+local PlayerSection = PlayerTab:Section({ 
+    Title = "// - = [ Jump Power ] =- \\",
+})
+
+local Button = PlayerTab:Button({
+    Title = "Reset JumpPower",
+    Desc = "",
+    Locked = false,
+    Callback = function()
+	local character = game.Players.LocalPlayer.Character
+        local character = game.Players.LocalPlayer.Character
+        if character and character:FindFirstChildOfClass("Humanoid") then
+            character:FindFirstChildOfClass("Humanoid").JumpPower = 50
+        end
+    end
+})
+
+-- Jump Power Slider
+local JumpPowerSlider = PlayerTab:Slider({
+    Title = "Jump Power",
+    Desc = "Change player jump power",
+    Step = 1,
+    Value = {
+        Min = 0,
+        Max = 1000,
+        Default = 50,
+    },
+    Callback = function(value)
+        local character = game.Players.LocalPlayer.Character
+        if character and character:FindFirstChildOfClass("Humanoid") then
+            character:FindFirstChildOfClass("Humanoid").JumpPower = value
+        end
+    end
+})
+
+local PlayerSection = PlayerTab:Section({ 
+    Title = "// - = [ Fov ] =- \\",
+})
+
+
+
+local Button = PlayerTab:Button({
+    Title = "Reset FOV",
+    Desc = "",
+    Locked = false,
+    Callback = function()
+        local camera = workspace.CurrentCamera
+        if camera then
+            camera.FieldOfView = 70
+        end
+    end
+})
+
+local FOVSlider = PlayerTab:Slider({
+    Title = "Field of View",
+    Desc = "Change camera FOV",
+    Step = 1,
+    Value = {
+        Min = 70,
+        Max = 120,
+        Default = 70,
+    },
+    Callback = function(value)
+        local camera = workspace.CurrentCamera
+        if camera then
+            camera.FieldOfView = value
+        end
+    end
+})
+
+local PlayerSection = PlayerTab:Section({ 
+    Title = "// - = [ Health ] =- \\",
+})
+
+
+
+local Toggle = PlayerTab:Toggle({
+    Title = "God Mode",
+    Desc = "Toggle Description",
+    Icon = "bird",
+    Type = "Checkbox",
+    Value = false, -- default value
+    Callback = function(state)
+        local character = localPlayer.Character or localPlayer.CharacterAdded:Wait()
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            if state then
+                humanoid.MaxHealth = math.huge
+                humanoid.Health = math.huge
+            else
+                humanoid.MaxHealth = 100
+                humanoid.Health = 100
+            end
+        end
+    end
+})
+
+
+local Button = PlayerTab:Button({
+    Title = "Die",
+    Desc = "",
+    Locked = false,
+    Callback = function()
+        local character = game.Players.LocalPlayer.Character
+        if character and character:FindFirstChildOfClass("Humanoid") then
+            local humanoid = character:FindFirstChildOfClass("Humanoid")
+            humanoid.MaxHealth = 0
+            humanoid.Health = 0
+        end
+    end
+})
+
+
+local Button = PlayerTab:Button({
+    Title = "Reset Health",
+    Desc = "",
+    Locked = false,
+    Callback = function()
+        local character = game.Players.LocalPlayer.Character
+        if character and character:FindFirstChildOfClass("Humanoid") then
+            local humanoid = character:FindFirstChildOfClass("Humanoid")
+            humanoid.MaxHealth = 100
+            humanoid.Health = 100
+        end
+    end
+})
+
+-- Health Slider
+local HealthSlider = PlayerTab:Slider({
+    Title = "Health",
+    Desc = "Change player max health and health",
+    Step = 1,
+    Value = {
+        Min = 0,
+        Max = 500,
+        Default = 100,
+    },
+    Callback = function(value)
+        local character = game.Players.LocalPlayer.Character
+        if character and character:FindFirstChildOfClass("Humanoid") then
+            local humanoid = character:FindFirstChildOfClass("Humanoid")
+            humanoid.MaxHealth = value
+            humanoid.Health = value
+        end
+    end
+})
+
+
+
+local PlayerSection = PlayerTab:Section({ 
+    Title = "// - = [ Gravity ] =- \\",
+})
+
+local Button = PlayerTab:Button({
+    Title = "Reset Gravity",
+    Desc = "",
+    Locked = false,
+    Callback = function()
+	    workspace.Gravity = 196.2
+    end
+})
+
+-- Gravity Slider
+local GravitySlider = PlayerTab:Slider({
+    Title = "Gravity",
+    Desc = "Change game gravity",
+    Step = 1,
+    Value = {
+        Min = 0,
+        Max = 300,
+        Default = 196.2,
+    },
+    Callback = function(value)
+        workspace.Gravity = value
+    end
+})
+
+local PlayerSection = PlayerTab:Section({ 
+    Title = "// - = [ Hip Height ] =- \\",
+})
+
+local Button = PlayerTab:Button({
+    Title = "Reset Hip Heigt",
+    Desc = "",
+    Locked = false,
+    Callback = function()
+        local character = game.Players.LocalPlayer.Character
+        if character and character:FindFirstChildOfClass("Humanoid") then
+            character:FindFirstChildOfClass("Humanoid").HipHeight = 0
+        end
+    end
+})
+
+-- Hip Height Slider
+local HipHeightSlider = PlayerTab:Slider({
+    Title = "Hip Height",
+    Desc = "Change player hip height",
+    Step = 0.1,
+    Value = {
+        Min = 0,
+        Max = 50,
+        Default = 2,
+    },
+    Callback = function(value)
+        local character = game.Players.LocalPlayer.Character
+        if character and character:FindFirstChildOfClass("Humanoid") then
+            character:FindFirstChildOfClass("Humanoid").HipHeight = value
+        end
+    end
+})
+
+
+
+
+
+-- // Tabs \\
+local OtherTab = OtherSection:Tab({
+    Title = "Settings",
+    Icon = "settings", -- optional
+    Locked = false,
+})
+
+
+-- // Settings Tab \\
+
+local OtherSection = OtherTab:Section({ 
     Title = "// - = [ Theme Changer ] =- \\",
 })
 
--- Theme Selector
+
 local selectedTheme = "Dark"
-ThemeSection:Dropdown({
+
+local Dropdown = OtherTab:Dropdown({
     Title = "Theme Selector",
     Values = {
         { Title = "Dark", Icon = "paintbrush" },
         { Title = "Light", Icon = "paintbrush" },
-        { Title = "SuperDark", Icon = "paintbrush" },
-        { Title = "Blue", Icon = "paintbrush" },
+		{ Title = "SuperDark", Icon = "paintbrush" },
+		{ Title = "Blue", Icon = "paintbrush" },
     },
     Value = selectedTheme,
     Callback = function(theme)
+        -- Some UI libs return the entire table instead of just the title
         if type(theme) == "table" and theme.Title then
             selectedTheme = theme.Title
         else
@@ -206,142 +468,30 @@ ThemeSection:Dropdown({
     end
 })
 
--- Set Theme Button
-ThemeSection:Button({
+local Button = OtherTab:Button({
     Title = "Set Theme",
     Desc = "Sets The Theme Of The Menu",
     Locked = false,
     Callback = function()
-        if selectedTheme and selectedTheme ~= "" then
-            WindUI:SetTheme(selectedTheme)
-            WindUI:Notify({
-                Title = "[SYSTΞM]",
-                Content = "THΞMΞ CHANGΞD TO " .. selectedTheme,
-                Duration = 3,
-                Icon = "code",
-            })
+        if selectedTheme == "Dark" then
+            WindUI:SetTheme("Dark")
+        elseif selectedTheme == "Light" then
+            WindUI:SetTheme("Light")
+        elseif selectedTheme == "SuperDark" then
+            WindUI:SetTheme("SuperDark")
+        elseif selectedTheme == "Blue" then
+            WindUI:SetTheme("Blue")
         end
     end
 })
 
--- Background Toggle
-ThemeSection:Toggle({
-    Title = "Background Image",
-    Desc = "Toggles a background image behind the menu.",
-    Icon = "image",
-    Type = "Checkbox",
-    Value = false,
-    Callback = function(backt)
-        WindUI:SetBackground({
-            Image = "rbxassetid://1904861641",
-            Transparency = backt and 0 or 1,
-            TileSize = UDim2.new(1, 0, 1, 0),
-        })
-        WindUI:Notify({
-            Title = "[SYSTΞM]",
-            Content = backt and "BΛCKGRØUND ΞNΛBLΞD." or "BΛCKGRØUND DΙSΛBLΞD.",
-            Duration = 3,
-            Icon = backt and "image" or "x",
-        })
-    end
-})
 
--- =============================
--- Config Tab
--- =============================
-local ConfigTab = OtherSection:Tab({
-    Title = "Config",
-    Icon = "folder",
-})
 
-local ConfigTabSection = ConfigTab:Section({
-    Title = "Configuration",
-    Icon = "settings",
-})
 
-local ConfigManager = Window.ConfigManager
-local ConfigName = "default"
-
--- Input for naming configs
-local ConfigNameInput = ConfigTabSection:Input({
-    Title = "Config Name",
-    Icon = "file-cog",
-    Callback = function(value)
-        ConfigName = value
-    end
-})
-
--- Dropdown for existing configs
-local AllConfigs = ConfigManager:AllConfigs()
-local DefaultValue = (table.find(AllConfigs, ConfigName) and ConfigName) or (AllConfigs[1] or "")
-ConfigTabSection:Dropdown({
-    Title = "All Configs",
-    Desc = "Select existing configs",
-    Values = AllConfigs,
-    Value = DefaultValue,
-    Callback = function(value)
-        ConfigName = value
-        ConfigNameInput:Set(value)
-    end
-})
-
-ConfigTabSection:Space()
-
--- Save Button
-ConfigTabSection:Button({
-    Title = "Save Config",
-    Icon = "save",
-    Justify = "Center",
-    Callback = function()
-        if ConfigName and ConfigName ~= "" then
-            local myConfig = ConfigManager:CreateConfig(ConfigName)
-            myConfig:Save()
-            WindUI:Notify({
-                Title = "Config Saved",
-                Content = "Config '" .. ConfigName .. "' has been saved!",
-                Icon = "check",
-                Duration = 3,
-            })
-        end
-    end
-})
-
-ConfigTabSection:Space()
-
--- Load Button
-ConfigTabSection:Button({
-    Title = "Load Config",
-    Icon = "refresh-cw",
-    Justify = "Center",
-    Callback = function()
-        if ConfigName and ConfigName ~= "" then
-            local myConfig = ConfigManager:CreateConfig(ConfigName)
-            myConfig:Load()
-            WindUI:Notify({
-                Title = "Config Loaded",
-                Content = "Config '" .. ConfigName .. "' has been loaded!",
-                Icon = "refresh-cw",
-                Duration = 3,
-            })
-        end
-    end
-})
-
--- Auto-save every 10 seconds
-task.spawn(function()
-    while true do
-        task.wait(10)
-        if ConfigName and ConfigName ~= "" then
-            local myConfig = ConfigManager:CreateConfig(ConfigName)
-            myConfig:Save()
-        end
-    end
-end)
 
 
 local BrokenBonesSection = Window:Section({
     Title = "Broken Bones Simulator 2",
-	Icon = "bone",
 })
 
 local OPTab = BrokenBonesSection:Tab({
@@ -404,7 +554,6 @@ game:GetService("ReplicatedStorage").Remotes.Player_NewRun:FireServer(unpack(arg
 
 local GubbySection = Window:Section({
     Title = "Military Tycoon",
-	Icon = "shield-off",
 })
 
 
@@ -471,191 +620,3 @@ local Toggle = AutoTab:Toggle({
     end,
 })
 
-
-
-
-
-
-local AimbotTab = GubbySection:Tab({
-    Title = "Cheats",
-    Icon = "target",
-    Locked = gubby,
-})
-
---// Settings (defaults)
-local aimEnabled = false
-local fovCircle
-local FOV_RADIUS = 50
-local FOV_COLOR = Color3.fromRGB(140, 60, 255)
-local MAX_DISTANCE = 250
-local SMOOTHNESS = 0.15 -- camera lerp speed
-local SelectedColor = "white" -- default selection
-
---// Create FOV circle
-local function createFOV()
-    local circle = Drawing.new("Circle")
-    circle.Visible = true
-    circle.Thickness = 2
-    circle.Radius = FOV_RADIUS
-    circle.Transparency = 1
-    circle.Color = FOV_COLOR
-    circle.Filled = false
-    return circle
-end
-
---// Get closest player in FOV
-local function getClosestPlayerInFOV()
-    local closest, shortest = nil, math.huge
-    local screenCenter = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
-
-    for _, plr in ipairs(Players:GetPlayers()) do
-        if plr ~= LocalPlayer and plr.Character and plr.Character:FindFirstChild("Head") then
-            local head = plr.Character.Head
-            local pos, onScreen = Camera:WorldToViewportPoint(head.Position)
-            if onScreen then
-                local dist = (Vector2.new(pos.X, pos.Y) - screenCenter).Magnitude
-                local distance3D = (head.Position - Camera.CFrame.Position).Magnitude
-                if dist < FOV_RADIUS and distance3D < MAX_DISTANCE and dist < shortest then
-                    shortest = dist
-                    closest = plr
-                end
-            end
-        end
-    end
-
-    return closest
-end
-
---// FOV Update Loop
-local function updateFOV()
-    task.spawn(function()
-        while aimEnabled do
-            if not fovCircle then break end
-
-            -- Center the FOV circle properly
-            local center = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
-            fovCircle.Position = center
-            fovCircle.Radius = FOV_RADIUS
-            fovCircle.Color = FOV_COLOR
-
-            -- Aim at closest target
-            local target = getClosestPlayerInFOV()
-            if target and target.Character and target.Character:FindFirstChild("Head") then
-                local head = target.Character.Head
-                local direction = (head.Position - Camera.CFrame.Position).Unit
-                local desired = CFrame.new(Camera.CFrame.Position, Camera.CFrame.Position + direction)
-                Camera.CFrame = Camera.CFrame:Lerp(desired, SMOOTHNESS)
-            end
-
-            RunService.RenderStepped:Wait()
-        end
-    end)
-end
-
---// Toggle
-local Toggle = AimbotTab:Toggle({
-    Title = "Auto Aim (FOV Lock)",
-    Desc = "Smoothly rotates camera toward closest player within FOV",
-    Icon = "crosshair",
-    Type = "Checkbox",
-    Value = false,
-    Callback = function(state)
-        aimEnabled = state
-
-        if state then
-            WindUI:Notify({
-                Title = "[SYSTΞM]",
-                Content = "ΛUTØ ΛIM ΞNΛBLΞD",
-                Duration = 3,
-                Icon = "target",
-            })
-
-            fovCircle = createFOV()
-            updateFOV()
-        else
-            WindUI:Notify({
-                Title = "[SYSTΞM]",
-                Content = "ΛUTØ ΛIM DΙSΛBLΞD",
-                Duration = 3,
-                Icon = "x",
-            })
-
-            if fovCircle then
-                fovCircle.Visible = false
-                fovCircle:Remove()
-                fovCircle = nil
-            end
-        end
-    end,
-})
-
---// FOV Radius Slider
-local FOVSlider = AimbotTab:Slider({
-    Title = "FOV Radius",
-    Desc = "Adjust the size of the aim circle",
-    Step = 10,
-    Value = {
-        Min = 1,
-        Max = 400,
-        Default = 150,
-    },
-    Callback = function(val)
-        FOV_RADIUS = val
-        if fovCircle then fovCircle.Radius = val end
-    end,
-})
-
---// Max Distance Slider
-local DistSlider = AimbotTab:Slider({
-    Title = "Max Aim Distance",
-    Desc = "How far players can be to lock on",
-    Step = 10,
-    Value = {
-        Min = 100,
-        Max = 1000,
-        Default = 250,
-    },
-    Callback = function(val)
-        MAX_DISTANCE = val
-    end,
-})
-
---// FOV Color Dropdown
-local FOVColorDropdown = AimbotTab:Dropdown({
-    Title = "FOV Color",
-    Desc = "Select a preset color for the FOV circle",
-    Values = { "Purple", "Red", "Green", "Blue", "White" },
-    Multi = false,
-    Callback = function(selected)
-        SelectedColor = selected
-    end,
-})
-
---// Apply Color Button
-local ApplyColorButton = AimbotTab:Button({
-    Title = "Apply FOV Color",
-    Desc = "Applies your selected FOV circle color",
-    Locked = false,
-    Callback = function()
-        local colors = {
-            Purple = Color3.fromRGB(140, 60, 255),
-            Red = Color3.fromRGB(255, 60, 60),
-            Green = Color3.fromRGB(60, 255, 60),
-            Blue = Color3.fromRGB(60, 120, 255),
-            White = Color3.fromRGB(255, 255, 255),
-        }
-
-        FOV_COLOR = colors[SelectedColor] or Color3.fromRGB(140, 60, 255)
-
-        if fovCircle then
-            fovCircle.Color = FOV_COLOR
-        end
-
-        WindUI:Notify({
-            Title = "[SYSTΞM]",
-            Content = "FOV CØLØR ΞNΛBLΞD: " .. SelectedColor,
-            Duration = 2,
-            Icon = "palette",
-        })
-    end,
-})
